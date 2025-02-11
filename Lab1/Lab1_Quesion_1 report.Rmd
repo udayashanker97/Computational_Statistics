@@ -1,0 +1,235 @@
+---
+title: "Comp stats Lab_1 Question_1"
+author: "Udaya Shanker Mohanan Nair, Dhanush Kumar Reddy Narayana Reddy"
+date: "2025-01-27"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Statement of Contribution
+
+Udaya Shanker Mohanan Nair () was mainly responsible to do Question 2. Dhanush Kumar Reddy Narayana Reddy (dhana004) was mainly responsible to do Question 1. The group report was compiled through discussion in a google document by everyone and the final draft was made using rmd.
+
+## Question 1: Maximization of a function in one variable
+
+$$
+g(x) = \frac{\log(x + 1)}{x^{3/2} + 1}
+$$
+
+### Part A
+
+```{r, echo=FALSE}
+knitr::include_graphics("C:/Users/dhanu/OneDrive/Documents/Computational Stats/Lab1/lab1_partA.jpeg")
+```
+
+Based on the behavior of the function and the typical shape of similar functions,I would guess the maximum point to be near My guess x = 0.63
+
+### Part B
+
+```{r, echo=FALSE}
+knitr::include_graphics("C:/Users/dhanu/OneDrive/Documents/Computational Stats/Lab1/lab1_partB.jpeg")
+```
+
+
+### Part C
+
+#### Bisection method
+
+$root
+  [1] 0.9610605
+
+$iterations
+  [1] 21
+
+For Bisection Method, given the interval [0,4] the bisection method converges to the root 0.9610605 in 21 iterations.
+
+### Part D
+
+#### Secant Method
+
+$root
+  [1] 0.9610605
+
+$iterations
+  [1] 21
+  
+For Secant Method, given the interval [0,4] the bisection method converges to the root 0.9610605 in 21 iterations.
+
+### Part E
+
+Bisection: 
+ Root:  0.9610603 
+ Iterations:  21 
+
+Secant: 
+ Root:  142731864020 
+ Iterations:  100 
+ 
+Bisection Method: Given the interval [0.75,3] the bisection method converges to the root 0.9610603 in 21 iterations.
+ 
+Secant Method: Given the initial guesses 0.75 and 3, the secant method produces an incorrect root 142731864020 in 100 iterations.
+
+The secant method's failure to converge in this case is likely due to poor initial guesses or the nature of the function g′ near the root. It suggests the secant method can sometimes be less reliable than the bisection method for finding roots, especially if the initial guesses are not well chosen.
+
+### Part F
+
+Bisection method:  Bisection is usually preferred for its simplicity and guaranteed convergence within an interval where a sign change occurs. Suitable for well-behaved functions over an interval.
+
+Secant method: Secant is used when you have good initial guesses and need faster convergence. Useful when dealing with more complex functions where derivative information is unreliable.
+
+It's often based on to the function's nature and the problem context. If you prefer simplicity, it is better to go with Bisection. When speed and efficiency matter more than simplicity, and you trust your initial guesses, then Secant method is more suitable.
+
+## Question 2: Computer arithmetics (variance)
+
+$$
+\text{Var}(\bar{x}) = \frac{1}{n - 1} \left( \sum_{i=1}^n x_i^2 - \frac{1}{n} \left( \sum_{i=1}^n x_i \right)^2 \right)
+$$
+
+### Part A
+
+### Part B
+
+### Part C
+
+### Part D
+
+## Appendix
+
+### Question 1 Code
+
+```{r, eval=FALSE}
+# Maximization of a function in one variable
+# Given Formula
+g <- function(x) {
+  log(x + 1) / (x^(3/2) + 1)
+}
+
+# Part A
+# Loading x and y 
+x <- seq(0, 4, length.out = 100)
+y <- g(x)
+
+# Plotting the function
+plot(x, y, type = "l", col = "blue", lwd = 2, 
+     xlab = "x", ylab = "g(x)", main = "Plot of g(x)")
+# Based on the behavior of the function and the typical shape of similar functions,
+# I would guess the maximum point to be near My guess x = 0.63
+
+
+# Part B
+u <- function(x) {
+  log(x + 1)
+}
+v <- function(x) {
+  x^(3/2) + 1
+}
+u_dash <- function(x) {
+  1 / (x + 1)
+}
+v_dash <- function(x) {
+  (3/2) * x^(1/2)
+}
+g_dash <- function(x) {
+  (u_dash(x) * v(x) - u(x) * v_dash(x)) / (v(x))^2
+}
+y_dash <- g_dash(x)
+plot(x, y_dash, type = "l", col = "red", lwd = 2, 
+     xlab = "x", ylab = "g'(x)", main = "Plot of g'(x)")
+abline(h = 0, col = "black", lwd = 1, lty = 2)
+
+
+# Part C
+# Bisection method
+bisection <- function(f, a, b, error = 1e-6, max_iter = 100) {
+  if (f(a) * f(b) >= 0) {
+    stop("f(a) and f(b) must have opposite signs.")
+  }
+  iter <- 0
+  while ((b - a) / 2 > error && iter < max_iter) {
+    c <- (a + b) / 2
+    if (f(c) == 0) {
+      return(c)
+    } else if (f(a) * f(c) < 0) {
+      b <- c
+    } else {
+      a <- c
+    }
+    iter <- iter + 1
+  }
+  list(root = (a + b) / 2, iterations = iter)
+}
+print(bisection(g_dash, 0, 4)) 
+# $root
+# [1] 0.9610605
+# 
+# $iterations
+# [1] 21
+
+
+# Part D
+# Secant Method
+secant <- function(f, x0, x1, error =1e-6, max_iter = 100) {
+  iter <- 0
+  while (abs(x1 - x0) > error && iter < max_iter) {
+    x2 <- x1 - f(x1) * (x1 - x0) / (f(x1) - f(x0))
+    x0 <- x1
+    x1 <- x2
+    iter <- iter + 1
+  }
+  list(root = x1, iterations = iter)
+}
+print(secant(g_dash, 0, 4))
+# $root
+# [1] 161850630762
+# 
+# $iterations
+# [1] 100
+
+
+# Part E 
+# Testing bisection method
+bisection_method <- bisection(g_dash, 0.75, 3)
+cat("Bisection:", "\n", "Root: ", bisection_method$root, "\n", "Iterations: ", bisection_method$iterations, "\n")
+# Bisection: 
+#   Root:  0.9610603 
+# Iterations:  21 
+
+# Testing secant method 
+secant_method <- secant(g_dash, 0.75, 3)
+cat("Secant:", "\n", "Root: ", secant_method$root,"\n", "Iterations: ", secant_method$iterations, "\n")
+# Secant: 
+#   Root:  142731864020 
+# Iterations:  100 
+
+# Bisection Method: Given the interval [0.75,3] the bisection method converges 
+# to the root 0.9610603 in 21 iterations.
+# 
+# Secant Method: Given the initial guesses 0.75 and 3, the secant method 
+# produces an incorrect root 142731864020 in 100 iterations.
+
+# The secant method's failure to converge in this case is likely due to poor 
+# initial guesses or the nature of the function g′ near the root. It suggests 
+# the secant method can sometimes be less reliable than the bisection method for 
+# finding roots, especially if the initial guesses are not well chosen.
+
+
+# Part F 
+# Bisection method:  Bisection is usually preferred for its simplicity and guaranteed convergence 
+# within an interval where a sign change occurs. Suitable for well-behaved functions over an interval.
+
+# Secant method: Secant is used when you have good initial guesses and need faster convergence. 
+#Useful when dealing with more complex functions where derivative information is unreliable.
+
+# It's often based on to the function's nature and the problem context. If you prefer simplicity, 
+# it is better to go with Bisection. When speed and efficiency matter more than simplicity, and you trust your 
+# initial guesses, then Secant method is more suitable.
+```
+
+### Question 1 Code
+
+```{r, eval=FALSE}
+#Paste your code here.
+```
