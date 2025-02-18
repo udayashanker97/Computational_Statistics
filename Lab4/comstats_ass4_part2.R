@@ -77,10 +77,10 @@ lines(xv, -(w / 2) * xv + sqrt(1 - (1 - w^2 / 4) * xv^2), lwd = 2, col = 8)
 
 # w = 1.8
 w <- 1.8
-samples <- gibbs_sampling(n, w)
+samples_w <- gibbs_sampling(n, w)
 
 # Plot
-plot(samples[, 1], samples[, 2], pch = 20, col = rgb(0, 0, 1, 0.5), 
+plot(samples_w[, 1], samples_w[, 2], pch = 20, col = rgb(0, 0, 1, 0.5), 
      xlab = expression(X[1]), ylab = expression(X[2]), 
      main = "Gibbs Sampling with w = 1.8")
 lines(xv, -(w / 2) * xv - sqrt(1 - (1 - w^2 / 4) * xv^2), lwd = 2, col = 8)
