@@ -1,0 +1,115 @@
+# Question 2: Gibbs Sampling
+# Part A
+w  <- 1.999
+
+# a range of x1-values
+xv <- seq(-1, 1, by=0.01) * 1/sqrt(1-w^2/4)
+
+# plot
+plot(xv, xv, type="n", xlab=expression(x[1]), ylab=expression(x[2]), 
+     las=1, main = "Boundaries of the Region")
+
+# ellipse
+lines(xv, -(w/2)*xv-sqrt(1-(1-w^2/4)*xv^2), lwd=2, col=8)
+lines(xv, -(w/2)*xv+sqrt(1-(1-w^2/4)*xv^2), lwd=2, col=8)
+
+# Part B
+# Conditional distribution of X1 given X2 = x2
+# The range of X1 is:
+#   
+#   $$
+#   X_1^2 + w X_1 x_2 + x_2^2 < 1\
+# $$
+#   
+#   Conditional distribution of X1 given X2 = x1
+# The range of X2 is:
+#   
+#   $$
+#   x_1^2 + w x_1 X_2 + X_2^2 < 1\
+# $$
+
+# Part C
+# Gibbs sampling function
+gibbs_sampling <- function(n, w) {
+  X1 <- 0
+  X2 <- 0
+  samples <- matrix(0, nrow = n, ncol = 2)
+  for (i in 1:n) {
+    X1_range <- sqrt(1 - X2^2 + (w^2 * X2^2) / 4)
+    X1 <- runif(1, -X1_range - (w * X2 / 2), X1_range - (w * X2 / 2))
+    X2_range <- sqrt(1 - X1^2 + (w^2 * X1^2) / 4)
+    X2 <- runif(1, -X2_range - (w * X1 / 2), X2_range - (w * X1 / 2))
+    samples[i, ] <- c(X1, X2)
+  }
+  return(samples)
+}
+
+set.seed(123)
+n <- 1000
+w <- 1.999
+samples <- gibbs_sampling(n, w)
+
+# Plot
+plot(samples[, 1], samples[, 2], pch = 20, col = rgb(1, 0, 0, 0.5), 
+     xlab = expression(X[1]), ylab = expression(X[2]), 
+     main = "Gibbs Sampling with X")
+lines(xv, -(w / 2) * xv - sqrt(1 - (1 - w^2 / 4) * xv^2), lwd = 2, col = 8)
+lines(xv, -(w / 2) * xv + sqrt(1 - (1 - w^2 / 4) * xv^2), lwd = 2, col = 8)
+
+# P(X1 > 0)
+p_X1 <- mean(samples[, 1] > 0)
+cat("Estimated P(X1 > 0) is:", p_X1, "\n")
+
+# Part D
+set.seed(123)
+n <- 1000
+
+# w = 1.999
+w <- 1.999
+samples <- gibbs_sampling(n, w)
+
+# Plot
+plot(samples[, 1], samples[, 2], pch = 20, col = rgb(0, 0.5, 0.5, 0.5), 
+     xlab = expression(X[1]), ylab = expression(X[2]), 
+     main = "Gibbs Sampling with w = 1.999")
+lines(xv, -(w / 2) * xv - sqrt(1 - (1 - w^2 / 4) * xv^2), lwd = 2, col = 8)
+lines(xv, -(w / 2) * xv + sqrt(1 - (1 - w^2 / 4) * xv^2), lwd = 2, col = 8)
+
+# w = 1.8
+w <- 1.8
+samples <- gibbs_sampling(n, w)
+
+# Plot
+plot(samples[, 1], samples[, 2], pch = 20, col = rgb(0, 0, 1, 0.5), 
+     xlab = expression(X[1]), ylab = expression(X[2]), 
+     main = "Gibbs Sampling with w = 1.8")
+lines(xv, -(w / 2) * xv - sqrt(1 - (1 - w^2 / 4) * xv^2), lwd = 2, col = 8)
+lines(xv, -(w / 2) * xv + sqrt(1 - (1 - w^2 / 4) * xv^2), lwd = 2, col = 8)
+
+# For w = 1.999, the elliptical region becomes highly elongated, resulting in a strong correlation between X1 and X2₂. As a consequence, the Gibbs sampler experiences slow mixing, as it takes longer to explore the entire region due to the narrow conditional distributions. Additionally, the sampler exhibits high autocorrelation, meaning successive samples are highly dependent, which reduces the effective sample size. In contrast, when w = 1.8, the region is less elongated, allowing the sampler to mix more efficiently and explore the distribution more effectively.
+
+# Part E 
+U_transform <- function(X) {
+  U1 <- X[, 1] - X[, 2]
+  U2 <- X[, 1] + X[, 2]
+  return(cbind(U1, U2))
+}
+
+# Transform the samples
+U_samples <- U_transform(samples)
+
+# Plot the transformed samples
+plot(U_samples[, 1], U_samples[, 2], pch = 20, col = rgb(0, 1, 0, 0.5), 
+     xlab = expression(U[1]), ylab = expression(U[2]), 
+     main = "Gibbs Sampling for U")
+
+# Estimate P(X1 > 0) = P((U2 + U1)/2 > 0)
+p_X1_transformed <- mean((U_samples[, 2] + U_samples[, 1]) / 2 > 0)
+cat("Estimated P(X1 > 0) = P((U2 + U1)/2 > 0) is:", p_X1_transformed, "\n")
+
+# Comparison:
+# 
+# The two estimates, 0.755 and 0.59, are quite different. When w = 1.999,the elliptical region becomes highly elongated, resulting in a strong correlation between X1 and X2. This strong correlation leads to slow mixing in the Gibbs sampler, meaning the chain takes longer to explore the entire region. Consequently, the sampler may get "stuck" in certain areas, causing biased estimates. The high correlation between  X1 and X2 results in the sampler underestimating or overestimating certain probabilities, such as P(X1>0).
+# Transforming the variables to U = (U1,U2) =(X1 - X2 ,X1 + X2) changes the geometry of the region. The transformed region is less elongated, and the variables U1 and U2 are less correlated. This improved geometry enhances the mixing of the Gibbs sampler, allowing it to explore the region more efficiently. As a result, the estimate of P(X1>0) from the transformed Gibbs sampling is likely more accurate.
+# The estimate from the transformed Gibbs sampling (0.59) is more reliable because the sampler mixes better and explores the region more thoroughly. In contrast, the estimate from the original Gibbs sampling (0.755) is likely biased due to the slow mixing caused by the high correlation between X1 and X2.
+# Since the distribution of X is uniform over the elliptical region, the true value of P(X1>0) should be 0.5. This is because the region is symmetric about X1 = 0 when w = 1.999. The transformed Gibbs sampling estimate (0.59) is closer to the true value (0.5) compared to the original Gibbs sampling estimate (0.755).
