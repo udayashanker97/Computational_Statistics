@@ -23,9 +23,8 @@ Implementation of 2 Assignment questions of Computational Statistics Lab 4 .
 
 # Contributions
 
-Member: Dhanush Kumar Reddy Narayana Reddy, Liu Id: dhana004, Contribution: Report writing and coding of question 2.
-
 Member: Udaya Shanker Mohanan Nair, Liu Id: udamo524, Contribution: Report writing and coding of question 1.
+Member: Dhanush Kumar Reddy Narayana Reddy, Liu Id: dhana004, Contribution: Report writing and coding of question 2.
 
 # Question 1
 Given below a target distribution,
