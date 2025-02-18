@@ -259,13 +259,13 @@ By transforming the variables and using Gibbs sampling for U = (U1,U2), estimate
 
 Comparison:
 
-(1)The two estimates, 0.755 and 0.59, are quite different. When w = 1.999,the elliptical region becomes highly elongated, resulting in a strong correlation between X1 and X2. This strong correlation leads to slow mixing in the Gibbs sampler, meaning the chain takes longer to explore the entire region. Consequently, the sampler may get "stuck" in certain areas, causing biased estimates. The high correlation between  X1 and X2 results in the sampler underestimating or overestimating certain probabilities, such as P(X1>0).
+(1) The two estimates, 0.755 and 0.491, are quite different. When w = 1.999,the elliptical region becomes highly elongated, resulting in a strong correlation between X1 and X2. This strong correlation leads to slow mixing in the Gibbs sampler, meaning the chain takes longer to explore the entire region. Consequently, the sampler may get "stuck" in certain areas, causing biased estimates. The high correlation between  X1 and X2 results in the sampler underestimating or overestimating certain probabilities, such as P(X1>0).
 
-(2)Transforming the variables to U = (U1,U2) =(X1 - X2 ,X1 + X2) changes the geometry of the region. The transformed region is less elongated, and the variables U1 and U2 are less correlated. This improved geometry enhances the mixing of the Gibbs sampler, allowing it to explore the region more efficiently. As a result, the estimate of P(X1>0) from the transformed Gibbs sampling is likely more accurate.
+(2) Transforming the variables to U = (U1,U2) =(X1 - X2 ,X1 + X2) changes the geometry of the region. The transformed region is less elongated, and the variables U1 and U2 are less correlated. This improved geometry enhances the mixing of the Gibbs sampler, allowing it to explore the region more efficiently. As a result, the estimate of P(X1>0) from the transformed Gibbs sampling is likely more accurate.
 
-(3)The estimate from the transformed Gibbs sampling (0.59) is more reliable because the sampler mixes better and explores the region more thoroughly. In contrast, the estimate from the original Gibbs sampling (0.755) is likely biased due to the slow mixing caused by the high correlation between X1 and X2.
+(3) The estimate from the transformed Gibbs sampling (0.491) is more reliable because the sampler mixes better and explores the region more thoroughly. In contrast, the estimate from the original Gibbs sampling (0.755) is likely biased due to the slow mixing caused by the high correlation between X1 and X2.
 
-(4)Since the distribution of X is uniform over the elliptical region, the true value of P(X1>0) should be 0.5. This is because the region is symmetric about X1 = 0 when w = 1.999. The transformed Gibbs sampling estimate (0.59) is closer to the true value (0.5) compared to the original Gibbs sampling estimate (0.755).
+(4) Since the distribution of X is uniform over the elliptical region, the true value of P(X1>0) should be 0.5. This is because the region is symmetric about X1 = 0 when w = 1.999. The transformed Gibbs sampling estimate (0.491) is closer to the true value (0.5) compared to the original Gibbs sampling estimate (0.755).
 
 # Appendix
 
@@ -474,28 +474,42 @@ lines(xv, -(w / 2) * xv + sqrt(1 - (1 - w^2 / 4) * xv^2), lwd = 2, col = 8)
 # For w = 1.999, the elliptical region becomes highly elongated, resulting in a strong correlation between X1 and X2₂. As a consequence, the Gibbs sampler experiences slow mixing, as it takes longer to explore the entire region due to the narrow conditional distributions. Additionally, the sampler exhibits high autocorrelation, meaning successive samples are highly dependent, which reduces the effective sample size. In contrast, when w = 1.8, the region is less elongated, allowing the sampler to mix more efficiently and explore the distribution more effectively.
 
 # Part E 
-U_transform <- function(X) {
-  U1 <- X[, 1] - X[, 2]
-  U2 <- X[, 1] + X[, 2]
-  return(cbind(U1, U2))
+w <- 1.999
+n <- 1000
+
+# a range of U
+uv <- seq(-1, 1, by=0.01) * 2/sqrt(2-w) 
+
+# Plot
+plot(uv, uv, type="n", xlab=expression(U[1]), ylab=expression(U[2]), las=1,
+     main = "Transformed Region Boundaries for w = 1.999")
+lines(uv, -sqrt((4-(2-w)*uv^2)/(2+w)), col="black", lwd=2)
+lines(uv, sqrt((4-(2-w)*uv^2)/(2+w)), col="black", lwd=2)
+
+# Gibbs sampling for U
+u <- matrix(0, nrow = n, ncol = 2)
+u[1, ] <- c(0, 0)
+for (i in 2:n) {
+  u_1 <- u[i, 1]
+  lower_u_2 <- -sqrt((4-(2-w)*u_1^2)/(2+w))
+  upper_u_2 <- sqrt((4-(2-w)*u_1^2)/(2+w))
+  u[i, 2] <- runif(1, lower_u_2, upper_u_2)
+  u_2 <- u[i-1, 2]
+  lower_u_1 <- -sqrt((4-(2+w)*u_2^2)/(2-w))
+  upper_u_1 <- sqrt((4-(2+w)*u_2^2)/(2-w))
+  u[i, 1] <- runif(1, lower_u_1, upper_u_1)
 }
+# Plot for U
+points(u[, 1], u[, 2], pch = ".", col = "purple")
 
-# Transform the samples
-U_samples <- U_transform(samples)
-
-# Plot the transformed samples
-plot(U_samples[, 1], U_samples[, 2], pch = 20, col = rgb(0, 1, 0, 0.5), 
-     xlab = expression(U[1]), ylab = expression(U[2]), 
-     main = "Gibbs Sampling for U")
-
-# Estimate P(X1 > 0) = P((U2 + U1)/2 > 0)
-p_X1_transformed <- mean((U_samples[, 2] + U_samples[, 1]) / 2 > 0)
-cat("Estimated P(X1 > 0) = P((U2 + U1)/2 > 0) is:", p_X1_transformed, "\n")
+# Estimate P(X1 > 0) = P((u_2 + u_1)/2 > 0)
+p_X1_transformed <- mean(u[, 2] > -u[, 1])
+cat("Estimated P(X1 > 0) = P((u_2 + u_1)/2 > 0) is:", p_X1_transformed, "\n")
 
 # Comparison:
 # 
-# The two estimates, 0.755 and 0.59, are quite different. When w = 1.999,the elliptical region becomes highly elongated, resulting in a strong correlation between X1 and X2. This strong correlation leads to slow mixing in the Gibbs sampler, meaning the chain takes longer to explore the entire region. Consequently, the sampler may get "stuck" in certain areas, causing biased estimates. The high correlation between  X1 and X2 results in the sampler underestimating or overestimating certain probabilities, such as P(X1>0).
-# Transforming the variables to U = (U1,U2) =(X1 - X2 ,X1 + X2) changes the geometry of the region. The transformed region is less elongated, and the variables U1 and U2 are less correlated. This improved geometry enhances the mixing of the Gibbs sampler, allowing it to explore the region more efficiently. As a result, the estimate of P(X1>0) from the transformed Gibbs sampling is likely more accurate.
-# The estimate from the transformed Gibbs sampling (0.59) is more reliable because the sampler mixes better and explores the region more thoroughly. In contrast, the estimate from the original Gibbs sampling (0.755) is likely biased due to the slow mixing caused by the high correlation between X1 and X2.
-# Since the distribution of X is uniform over the elliptical region, the true value of P(X1>0) should be 0.5. This is because the region is symmetric about X1 = 0 when w = 1.999. The transformed Gibbs sampling estimate (0.59) is closer to the true value (0.5) compared to the original Gibbs sampling estimate (0.755).
+# The two estimates, 0.755 and 0.491, are quite different. When w = 1.999,the elliptical region becomes highly elongated, resulting in a strong correlation between X1 and X2. This strong correlation leads to slow mixing in the Gibbs sampler, meaning the chain takes longer to explore the entire region. Consequently, the sampler may get "stuck" in certain areas, causing biased estimates. The high correlation between  X1 and X2 results in the sampler underestimating or overestimating certain probabilities, such as P(X1>0).
+# Transforming the variables to U = (u_1,u_2) =(X1 - X2 ,X1 + X2) changes the geometry of the region. The transformed region is less elongated, and the variables u_1 and u_2 are less correlated. This improved geometry enhances the mixing of the Gibbs sampler, allowing it to explore the region more efficiently. As a result, the estimate of P(X1>0) from the transformed Gibbs sampling is likely more accurate.
+# The estimate from the transformed Gibbs sampling (0.491) is more reliable because the sampler mixes better and explores the region more thoroughly. In contrast, the estimate from the original Gibbs sampling (0.755) is likely biased due to the slow mixing caused by the high correlation between X1 and X2.
+# Since the distribution of X is uniform over the elliptical region, the true value of P(X1>0) should be 0.5. This is because the region is symmetric about X1 = 0 when w = 1.999. The transformed Gibbs sampling estimate (0.491) is closer to the true value (0.5) compared to the original Gibbs sampling estimate (0.755).
 ```
