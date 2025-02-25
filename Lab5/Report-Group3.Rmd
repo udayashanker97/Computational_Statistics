@@ -1,0 +1,161 @@
+---
+title: "Lab Report: Lab5 - Computational Statistics"
+author: "Dhanush Kumar Reddy Narayana Reddy (dhana004), Udaya Shanker Mohanan Nair (udamo524)"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+number_sections: true
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(size = "small")
+```
+
+# Introduction
+
+Implementation of 2 Assignment questions of Computational Statistics Lab 5 .
+
+# Contributions
+
+Member: Dhanush Kumar Reddy Narayana Reddy, Liu Id: dhana004, Contribution: Report writing and coding of question 1.
+Member: Udaya Shanker Mohanan Nair, Liu Id: udamo524, Contribution: Report writing and coding of question 2.
+
+# Question 1
+
+# Question 2
+
+Given a Gumbel distribution with scale parameter 1 and location parameter \(\mu + c\), where \( c = \log(\log(2)) \). And this distribution has the following distribution function. For this distribution, median of a random variable is \mu.
+ 
+Now we are gone to generate random variables(Gumbel) using Inverse Transformation Method.
+
+The CDF of the Gumbel distribution is given by
+\[
+F(x) = \exp(-\exp(-(x - \mu - c)))
+\]
+where
+\[
+c = \log(\log(2))
+\]
+
+Inverse Transformation of this function for a random variable is given by
+\( Y \sim Y(0,1) \).
+\[
+  X = F^{-1}(Y)
+\]
+
+\[
+F(x) = \exp(-\exp(-(x - \mu - c)))
+\]
+Set \( Y = F(x) \), where \( Y \sim U(0,1) \)
+
+Take the natural logarithm on both sides:
+\[
+  \log(Y) = -\exp(-(x - \mu - c))
+\]
+
+Take the logarithm again:
+\[
+  \log(-\log(Y)) = -(x - \mu - c)
+\]
+
+Solve for \( x \):
+\[
+  x = -\log(-\log(Y)) + \mu + c
+\]
+     
+
+```{r, echo=FALSE, eval=TRUE}
+library(BSDA)
+c <- log(log(2))
+gumbel_fn <- function(median,n = 13) {
+  Y <- runif(n)
+  X <- -log(-log(Y)) + median + c
+  return(X)
+}
+```
+
+Now we need to find out power of the test for median values ranging from 0 to 2, where for each value we will using number of observations, n as 13 and then used sign test(used SIGN.test in this case). 
+
+I have tested for 50 different values of median. 
+
+```{r, echo=FALSE, eval=TRUE}
+median_values <- seq(0, 2, length.out = 50)
+len <- length(median_values)
+power <- numeric()
+for (j in seq_along(median_values)) {
+  median <- median_values[j]
+  count <- 0
+  for (i in 1:1000) {
+    data <- gumbel_fn(median)
+    test <- SIGN.test(data)
+    if(test$p.value < 0.05){
+      count <- count + 1
+    }
+  }
+  power[j] <- count / 1000
+}
+```
+Jotting Power of few median values. 
+
+```{r, echo=FALSE, eval=TRUE}
+cat("Median Value: ", median_values[1],"  Power:",power[1])
+cat("Median Value: ", median_values[14],"  Power:",power[14])
+cat("Median Value: ", median_values[26],"  Power:",power[26])
+cat("Median Value: ", median_values[38],"  Power:",power[38])
+cat("Median Value: ", median_values[50],"  Power:",power[50])
+```
+
+from this we understand as the value of median increases the power also increases.
+
+**Now plotting the power curve**
+
+```{r, echo=FALSE, eval=TRUE}
+plot(median_values, power, type = "b", pch = 19, col = "blue",
+     xlab = "Median", ylab = "Power", main = "Power Curve")
+```
+
+# Appendix
+
+## Question 1
+
+## Question 2 
+
+```{r, echo=TRUE, eval=FALSE}
+library(BSDA)
+c <- log(log(2))
+gumbel_fn <- function(median,n = 13) {
+  Y <- runif(n)
+  X <- -log(-log(Y)) + median + c
+  return(X)
+}
+median_values <- seq(0, 2, length.out = 50)
+len <- length(median_values)
+power <- numeric()
+for (j in seq_along(median_values)) {
+  median <- median_values[j]
+  count <- 0
+  for (i in 1:1000) {
+    data <- gumbel_fn(median)
+    test <- SIGN.test(data)
+    if(test$p.value < 0.05){
+      count <- count + 1
+    }
+  }
+  power[j] <- count / 1000
+}
+cat("Median Value: ", median_values[1],"  Power:",power[1])
+cat("Median Value: ", median_values[14],"  Power:",power[14])
+cat("Median Value: ", median_values[26],"  Power:",power[26])
+cat("Median Value: ", median_values[38],"  Power:",power[38])
+cat("Median Value: ", median_values[50],"  Power:",power[50])
+
+plot(median_values, power, type = "b", pch = 19, col = "blue",
+     xlab = "Median", ylab = "Power", main = "Power Curve")
+
+```
