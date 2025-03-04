@@ -109,11 +109,18 @@ knitr::include_graphics("/Users/uday/Documents/GitHub/Computational_Statistics/L
 
 Summary of Model Parameters:
 
-|Parameter	        |  Component 1 |  Component 2 |	 Component 3 |
-|----------------------------------------------------------------|
-|Mixing Proportion  | 	0.2268454  |   0.2482586  |   0.524896   |
-|Mean	              |   1.072835	 |   3.831919	  |   6.581551   | 
-|Standard Deviation |	  1.198011	 |   0.717409	  |   0.6007124  |
+\[
+\begin{array}{|l|c|c|c|}
+\hline
+\textbf{Parameter}          & \textbf{Component 1} & \textbf{Component 2} & \textbf{Component 3} \\
+\hline
+\text{Mixing Proportion}    & 0.2268454           & 0.2482586           & 0.524896  \\
+\text{Mean}                 & 1.072835            & 3.831919            & 6.581551  \\
+\text{Standard Deviation}   & 1.198011            & 0.717409            & 0.6007124 \\
+\hline
+\end{array}
+\]
+
 
 The final parameter estimates correspond to the estimated parameters of the three-component normal mixture model, specifically:
 
