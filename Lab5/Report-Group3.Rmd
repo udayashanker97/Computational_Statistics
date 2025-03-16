@@ -65,6 +65,8 @@ $$
 
 ## Part B
 
+The cubic regression model was considered as a potential fit for the data. It demonstrated a relatively high **Adjusted R-squared of 0.6264**, indicating a good proportion of variance explained. Additionally, it achieved the **lowest residual standard error (26.58)** among the models tested, suggesting a slightly better predictive accuracy. The overall model was statistically significant (**F-statistic = 45.15, p < 2.2e-16**), supporting its validity. While the individual polynomial terms were not highly significant, the cubic model provides flexibility in capturing potential nonlinear trends in the relationship between concentration and yield.
+
 ```{r, echo=FALSE}
 knitr::include_graphics("/Users/uday/Documents/GitHub/Computational_Statistics/Lab5/comstats_ass5_b.jpeg")
 ```
